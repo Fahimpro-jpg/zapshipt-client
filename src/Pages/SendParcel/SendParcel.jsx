@@ -1,11 +1,81 @@
 import React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
+import { useLoaderData } from 'react-router';
+import Swal from 'sweetalert2';
+import useAxiosSecure from '../../Hooks/useAxiosSecure';
+import useAuth from '../../Hooks/useAuth';
 
 const SendParcel = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+
+    const { register, handleSubmit, control } = useForm();
+
+    const {user} = useAuth() 
+
+    const axiosSecure = useAxiosSecure()
+
+    const serviceCenters = useLoaderData()
+
+    const regionsDuplicate = serviceCenters.map(c=>c.region);
+    const regions = [...new Set(regionsDuplicate)]
+
+    const senderRegion = useWatch({control,name:'senderRegion'})
+    const receiverRegion = useWatch({control,name:'receiverRegion'})
+
+    const districtsByRegion = (region)=>{
+        const regionDistricts = serviceCenters.filter(c=> c.region === region);
+
+        const districts = regionDistricts.map(d=>d.district)
+        return districts
+    }
+   
 
     const handleSendParcel = (data) => {
         console.log(data);
+
+        const isDocument = data.parcelType ==='document';
+
+        const isSameDistrict = data.senderDistrict=== data.receiverDistrict;
+       const parcelWeight = parseFloat(data.parcelWeight)
+        let cost = 0;
+        if(isDocument){
+            cost = isSameDistrict?60:80
+        }
+        else{
+                if(parcelWeight<3){
+                    cost = isSameDistrict ?110:150
+                }
+                else{
+                    const minCharge = isSameDistrict ? 110 : 150;
+                    const extraWeight = parcelWeight -3;
+                    const extraCharge = isSameDistrict ? extraWeight * 40 : extraWeight *40+40;
+                    cost = minCharge + extraCharge;
+                }
+        }
+
+        console.log('cost', cost)
+        Swal.fire({
+  title: "Agree with the Cost?",
+  text: `You will be charged ${cost} taka! `,
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Yes, take my parcel!"
+}).then((result) => {
+  if (result.isConfirmed) {
+    // save the parcel info to the database
+    axiosSecure.post('/parcels', data)
+    .then(res=>{
+        console.log('after saving parcel',res.data)
+    })
+    // Swal.fire({
+    //   title: "Confirmed!",
+    //   text: "Your Order has been Placed.",
+    //   icon: "success"
+    // });
+  }
+});
+
     };
 
     return (
@@ -51,7 +121,7 @@ const SendParcel = () => {
                     </fieldset>
                 </div>
 
-                {/* Sender & Receiver details (SIDE BY SIDE GRID) */}
+                {/* Sender & Receiver details*/}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 my-8">
 
                     {/* Sender Column */}
@@ -60,7 +130,48 @@ const SendParcel = () => {
 
                         <fieldset className="fieldset">
                             <label className="label">Sender Name</label>
-                            <input type="text" className="input w-full" placeholder="Sender Name" {...register('senderName')} />
+                            <input type="text"
+                            defaultValue={user?.displayName}
+                            readOnly
+                             className="input w-full" placeholder="Sender Name" {...register('senderName')} />
+
+                            <label className="label">Sender Email</label>
+                            <input type="email"
+                             defaultValue={user?.email}
+                             readOnly
+                            className="input w-full" placeholder="Sender Email" {...register('senderEmail')} />
+                            
+                            {/* sender region */}
+                            <fieldset className="fieldset">
+                            <legend className="fieldset-legend">Sender Region</legend>
+                            <select 
+                            {...register('senderRegion')}
+                            defaultValue="Pick a region" className="select">
+                            <option disabled={true}>Pick a region</option>
+                            
+                            {
+                                regions.map((r,i)=><option value={r} key={i} className='text-black'>{r}</option>)
+                            }
+                            </select>
+                            
+                            </fieldset>
+
+                            {/* sender districts */}
+                            <fieldset className="fieldset">
+                            <legend className="fieldset-legend">Sender Districts</legend>
+                            <select 
+                            {...register('senderDistrict')}
+                            defaultValue="Pick a District" className="select">
+                            <option disabled={true}>Pick a region</option>
+                            
+                            {
+                                districtsByRegion(senderRegion).map((r,i)=><option value={r} key={i} className='text-black'>{r}</option>)
+                            }
+                            </select>
+                            
+                            </fieldset>
+
+                             
 
                             <label className="label">Address</label>
                             <input type="text" className="input w-full" placeholder="Sender Address" {...register('senderAddress')} />
@@ -68,8 +179,7 @@ const SendParcel = () => {
                             <label className="label">Phone No</label>
                             <input type="number" className="input w-full" placeholder="Sender Phone No" {...register('senderPhone')} />
 
-                            <label className="label">District</label>
-                            <input type="text" className="input w-full" placeholder="Sender District" {...register('senderDistrict')} />
+                           
 
                             <label className="label">Pickup Instruction</label>
                             <input type="text" className="input w-full" placeholder="Pickup Instruction" {...register('pickupInstruction')} />
@@ -84,14 +194,47 @@ const SendParcel = () => {
                             <label className="label">Receiver Name</label>
                             <input type="text" className="input w-full" placeholder="Receiver Name" {...register('receiverName')} />
 
+                             <label className="label">Receiver Email</label>
+                            <input type="email" className="input w-full" placeholder="Receiver Email" {...register('ReceiverEmail')} />
+                            
+                            {/* receiver region */}
+                            <fieldset className="fieldset">
+                            <legend className="fieldset-legend">Receiver Region</legend>
+                            <select 
+                            {...register('receiverRegion')}
+                            defaultValue="Pick a region" className="select">
+                            <option disabled={true}>Pick a region</option>
+                            
+                            {
+                                regions.map((r,i)=><option value={r} key={i} className='text-black'>{r}</option>)
+                            }
+                            </select>
+                            
+                            </fieldset>
+
+
+                            {/* receiver district */}
+                            <fieldset className="fieldset">
+                            <legend className="fieldset-legend">Receiver District</legend>
+                            <select 
+                            {...register('receiverDistrict')}
+                            defaultValue="Pick a District" className="select">
+                            <option disabled={true}>Pick a District</option>
+                            
+                            {
+                               districtsByRegion(receiverRegion).map((r,i)=><option value={r} key={i} className='text-black'>{r}</option>)
+                            }
+                            </select>
+                            
+                            </fieldset>
+
                             <label className="label">Address</label>
                             <input type="text" className="input w-full" placeholder="Receiver Address" {...register('receiverAddress')} />
 
                             <label className="label">Phone No</label>
                             <input type="number" className="input w-full" placeholder="Receiver Phone No" {...register('receiverPhone')} />
 
-                            <label className="label">District</label>
-                            <input type="text" className="input w-full" placeholder="Receiver District" {...register('receiverDistrict')} />
+                            
 
                             <label className="label">Delivery Instruction</label>
                             <input type="text" className="input w-full" placeholder="Delivery Instruction" {...register('receiverInstruction')} />
@@ -100,7 +243,7 @@ const SendParcel = () => {
 
                 </div>
 
-                <input type="submit" className='btn btn-primary text-black' value="Send Parcel" />
+                <input type="submit" className='btn btn-primary text-black mt-8' value="Send Parcel" />
             </form>
         </div>
     );
