@@ -16,17 +16,18 @@ const Payment = () => {
     })
 
 
-    const handlePayment = async()=>{
-        const paymentInfo = {
-            cost: parcel.cost,
-            parcelId: parcel._id,
-            senderEmail: parcel.senderEmail,
-            parcelName : parcel.parcelName
-        }
-        const res = await axiosSecure.post('/create-checkout-session',paymentInfo);
-        console.log(res.data);
-        window.location.href = res.data.url
-    }
+    const handlePayment = async () => {
+  const paymentInfo = {
+    cost: parcel.cost,
+    parcelId: parcel._id,
+    senderEmail: parcel.senderEmail,
+    parcelName: parcel.parcelName
+  };
+
+  const res = await axiosSecure.post('/payment-checkout-session', paymentInfo);
+  window.location.href = res.data.url;
+};
+
 
     if(isLoading){
         return <span className="loading loading-spinner loading-lg"></span>
