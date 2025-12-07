@@ -35,7 +35,7 @@ const Rider = () => {
                   icon: "success",
                   showCancelButton: true,
                   confirmButtonText: "Yes, take my parcel!",
-                  timer: 2500
+                  
                 })
             }
         })
@@ -59,8 +59,8 @@ const Rider = () => {
                             <label className="label">Rider Name</label>
                             <input
                                 type="text"
-                                defaultValue={user?.displayName}
-                                readOnly
+                                
+                                
                                 className="input w-full"
                                 placeholder="Rider Name"
                                 {...register('riderName')}
@@ -69,8 +69,8 @@ const Rider = () => {
                             <label className="label">Rider Email</label>
                             <input
                                 type="email"
-                                defaultValue={user?.email}
-                                readOnly
+                              
+                                
                                 className="input w-full"
                                 placeholder="rider Email"
                                 {...register('riderEmail')}
