@@ -57,7 +57,7 @@ axiosSecure.post('/users',userInfo)
   }
   updateUserProfile(userProfile)
   .then(()=>{
-    console.log('user profile updated done')
+    // console.log('user profile updated done')
     navigate(location?.state || '/')
   })
   .catch(error=>{
@@ -88,7 +88,7 @@ axiosSecure.post('/users',userInfo)
 
           <label className="label">Name</label>
           <input type="text"
-          {...register('Name',{required:true})}
+          {...register('name',{required:true})}
           className="input" placeholder="Your Name" />
 
           {errors.email?.type==='required' && <p className='text-red-500'>Name is required</p>}
@@ -101,7 +101,7 @@ axiosSecure.post('/users',userInfo)
           {...register('photo',{required:true})}
           className="file-input" placeholder="Your Photo" />
 
-          {errors.email?.type==='required' && <p className='text-red-500'>Photo is required</p>}
+          {errors.photo?.type==='required' && <p className='text-red-500'>Photo is required</p>}
             {/* email */}
 
           <label className="label">Email</label>

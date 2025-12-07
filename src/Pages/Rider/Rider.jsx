@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import useAuth from '../../Hooks/useAuth';
+
 import useAxiosSecure from '../../Hooks/useAxiosSecure';
 import { useLoaderData } from 'react-router';
 import riderImage from "../../assets/agent-pending.png"
@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 const Rider = () => {
 
     const { register, handleSubmit, control } = useForm();
-    const { user } = useAuth();
+   
     const axiosSecure = useAxiosSecure();
     const serviceCenters = useLoaderData();
 

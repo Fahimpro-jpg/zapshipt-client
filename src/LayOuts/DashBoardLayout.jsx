@@ -3,8 +3,10 @@ import { Link, NavLink, Outlet } from 'react-router';
 import { CiDeliveryTruck } from "react-icons/ci";
 import { FaCreditCard, FaUser } from 'react-icons/fa';
 import { RiEBike2Fill } from 'react-icons/ri';
+import useRole from '../Hooks/useRole';
 
 const DashBoardLayout = () => {
+  const {role} = useRole()
     return (
         <div className="drawer lg:drawer-open max-w-7xl mx-auto">
   <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
@@ -57,7 +59,11 @@ const DashBoardLayout = () => {
             </NavLink>
         </li>
 
-        <li>
+        {/* admin panel */}
+
+       {
+          role === 'admin' && <>
+           <li>
             <NavLink className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Approve Rider" to="/dashboard/approve-riders">
             <RiEBike2Fill />
             <span className="is-drawer-close:hidden">Approve Rider</span>
@@ -69,6 +75,8 @@ const DashBoardLayout = () => {
             <span className="is-drawer-close:hidden">Users Management</span>
             </NavLink>
         </li>
+          </>
+       }
 
         {/* List item */}
         <li>
