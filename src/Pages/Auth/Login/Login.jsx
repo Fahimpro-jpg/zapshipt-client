@@ -8,7 +8,7 @@ const Login = () => {
 
     const {register,handleSubmit,formState:{errors}} = useForm()
 
-    const {signInUser}=useAuth
+    const {signInUser}=useAuth()
 
     const location = useLocation()
     const navigate = useNavigate()

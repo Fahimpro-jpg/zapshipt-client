@@ -7,6 +7,7 @@ import { FaMagnifyingGlass } from 'react-icons/fa6';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router';
 
+
 const MyParcels = () => {
     const {user} = useAuth()
 
@@ -58,7 +59,8 @@ const MyParcels = () => {
         cost: parcel.cost,
         parcelId: parcel._id,
         parcelName: parcel.parcelName,
-        senderEmail: parcel.senderEmail
+        senderEmail: parcel.senderEmail,
+        trackingId: parcel.trackingId
       }
       const res = await axiosSecure.post('/payment-checkout-session',paymentInfo);
 
@@ -77,6 +79,7 @@ const MyParcels = () => {
         <th>Name</th>
         <th>Cost</th>
         <th>Payment </th>
+        <th>Tracking ID</th>
         <th>Delivery Status</th>
         <th>Actions</th>
       </tr>
@@ -97,7 +100,14 @@ const MyParcels = () => {
             
           }
         </td>
+        <td>{parcel.trackingId}</td>
         <td>{parcel.deliveryStatus}</td>
+        
+        <td>
+          <Link to={`/parcel-track/${parcel.trackingId}`}>
+          {parcel.trackingId}</Link>
+        </td>
+
         <td >
 
         <button className='btn btn-square hover:bg-primary '>
